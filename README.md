@@ -4,38 +4,62 @@ A machine learning-powered safety assessment dashboard for space launches. The s
 
 ---
 
-## System Architecture
+## 📋 Problem Statement
 
-```text
-Historical Launches (Kaggle)
-│
-▼
-Geocoding coordinates (sites_mapping.csv)
-│
-▼
-Open-Meteo Archive API (Historical hourly weather)
-│
-▼
-Data Cleaning & Bayesian Success Rates Feature Engineering (preprocess.py)
-│
-▼
-Machine Learning Model Training & Selection (XGBoost, CatBoost, LightGBM, RF)
-│
-▼
-FastAPI Backend (app.py)  ◄───[Fetches current forecast / archive weather]
-│
-▼
-React Dashboard (Vite + Glassmorphism Custom CSS)
-```
+Space launches are highly complex events that are critically sensitive to atmospheric conditions. Poor weather at the launch pad has historically led to scrubbed launches, visual tracking issues, and catastrophic failures (such as the Challenger disaster caused by cold-temperature O-ring failure). 
+
+Evaluating launch safety is typically manual and complex. This project solves this by:
+1. Mapping historical space launches (1957–Present) to their exact weather parameters at the hour of launch.
+2. Training predictive Machine Learning classifiers on top of this compiled datasets.
+3. Automatically applying real-world **Launch Commit Criteria (LSE)** to adjust predictions for critical weather anomalies in real time.
 
 ---
 
-## Quick Start (Run the Pre-Trained App)
+## 🛠️ Technology Stack
+
+- **Backend (Python API)**: 
+  - **FastAPI** & **Uvicorn** (High-performance API server)
+  - **Pydantic** (Data validation schemas)
+  - **Pandas** & **NumPy** (Data cleaning and feature engineering)
+  - **Scikit-Learn** & **CatBoost** (Machine Learning & standardization scaling)
+  - **Open-Meteo API** (Hourly weather forecast and historical archives)
+- **Frontend (React)**:
+  - **React (Vite)** (Fast modern SPA development)
+  - **Vanilla CSS** (Custom responsive design with modern Glassmorphism cards)
+  - **Dual Theme Support** (Light/Dark mode switcher button, persisting selections via `localStorage`)
+  - **Responsive SVG Visualizations** (Custom launch volume and success rate graphs)
+
+---
+
+## 📊 Dataset References & Sources
+
+1. **Space Mission Launches (1957–Present)**:
+   - Source: Kaggle Datasets
+   - Link: [All Space Missions from 1957](https://www.kaggle.com/datasets/agirlcoding/all-space-missions-from-1957)
+   - Contains launch date, rocket type, operator company, site location, launch cost, and mission success/failure label.
+2. **Atmospheric Weather Archives & Forecasts**:
+   - Source: Open-Meteo API
+   - Link: [Open-Meteo Weather APIs](https://open-meteo.com/)
+   - Retrieves historical hourly weather profiles for coordinates matching the launch pads at the exact date/hour of launch, and pulls live forecasts for future launches.
+
+---
+
+## 🧠 Solution & ML Approach
+
+1. **Find Launch Coordinates**: Converts launch site names (like "Kennedy Space Center") into GPS coordinates (Latitude & Longitude).
+2. **Collect Weather Data**: Gets historical weather conditions (temperature, wind speed, visibility, cloud cover, rain, etc.) for every launch at its exact date and time.
+3. **Calculate Past Success Rates**: Computes the historical success rate of each space agency, rocket model, and launch pad up to that day, ensuring future data doesn't leak into past predictions.
+4. **Train ML Models**: Compares multiple machine learning algorithms (Random Forest, XGBoost, LightGBM, CatBoost). The **XGBoost Classifier** was selected as the best performing model based on its accuracy.
+5. **Apply Weather Safety Rules**: Blends the ML prediction with real-world launch safety criteria (e.g., cutting the safety score if wind speed exceeds 40 km/h or temperature drops near freezing).
+
+---
+
+## 🚀 Quick Start (Run the App)
 
 The data pipeline has already been run and the **XGBoost** model is trained. Follow these steps to run the application immediately:
 
 ### 1. Start the FastAPI Backend
-Navigate to the `backend/` directory, install the dependencies, and start the Uvicorn server:
+Navigate to the `backend/` directory, install dependencies, and start the Uvicorn server:
 ```bash
 # Navigate to backend
 cd backend
@@ -64,9 +88,9 @@ npm run dev
 
 ---
 
-## Data Pipeline Commands (Optional)
+## ⚙️ Data Pipeline Commands (Optional)
 
-If you wish to download the raw dataset, geocode coordinates, fetch weather data, and train models from scratch:
+If you wish to download raw data, geocode coordinates, enrich weather, and train models from scratch:
 
 ```bash
 cd backend
@@ -74,23 +98,22 @@ cd backend
 # 1. Download Space_Corrected.csv via kagglehub
 python src/downloader.py
 
-# 2. Extract unique launch sites and map coordinates (sites_mapping.csv)
+# 2. Map coordinates (sites_mapping.csv)
 python src/geocoder.py
 
-# 3. Pull hourly historical weather archives from Open-Meteo
-# (Multi-threaded & connection-pooled, takes ~4 minutes)
+# 3. Pull hourly weather archive from Open-Meteo (runs parallel threads)
 python src/weather_fetcher.py
 
-# 4. Preprocess, feature engineer, and train the candidate ML models
+# 4. Preprocess, feature engineer, and train the ML models
 python src/train.py
 ```
-*Upon completion, the best model (XGBoost) is automatically saved to `backend/models/best_model.joblib` and will be loaded by the FastAPI backend on startup.*
+*Upon completion, the best model (XGBoost) is automatically saved to `backend/models/best_model.joblib`.*
 
 ---
 
-## Core API Endpoints
+## 📡 Core API Endpoints
 
-- **`POST /api/predict`**: Accepts site, date, time, vehicle, operator, and payload type. Retrieves current weather forecast or historical archive and returns the safety scores, weather metrics, and contributing risk factors.
-- **`GET /api/sites`**: Returns unique spaceports and their resolved coordinates.
-- **`GET /api/rockets`**: Returns lists of rockets and companies to populate UI dropdowns.
-- **`GET /api/stats`**: Compiles yearly success rates, operator performance comparisons, and weather profiles for the dashboard charts.
+- **`POST /api/predict`**: Accepts site, date, time, vehicle, company, cost, and manual weather overrides. Returns safety metrics, real-time/forecast weather parameters, and diagnostic risk drivers.
+- **`GET /api/sites`**: Returns unique spaceports and resolved coordinates.
+- **`GET /api/rockets`**: Returns list of rockets and companies for UI dropdowns.
+- **`GET /api/stats`**: Compiles yearly analytics and operator performance profiles.
