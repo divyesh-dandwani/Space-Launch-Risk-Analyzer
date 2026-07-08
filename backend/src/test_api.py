@@ -2,9 +2,23 @@ import urllib.request
 import urllib.error
 import json
 import sys
+import os
+
+# Load .env file manually
+env_path = ".env"
+if not os.path.exists(env_path):
+    env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env")
+
+if os.path.exists(env_path):
+    with open(env_path) as f:
+        for line in f:
+            if line.strip() and not line.startswith("#") and "=" in line:
+                key, val = line.strip().split("=", 1)
+                os.environ[key.strip()] = val.strip()
 
 def test_prediction():
-    url = "http://localhost:8001/api/predict"
+    port = os.environ.get("PORT", "8001")
+    url = f"http://localhost:{port}/api/predict"
     payload = {
         "site": "LC-39A, Kennedy Space Center, Florida, USA",
         "date": "2026-07-10",
@@ -61,7 +75,7 @@ def test_prediction():
             pass
     except Exception as e:
         print(f"Error testing prediction API: {e}")
-        print("Ensure the FastAPI server is running locally (e.g. uvicorn src.app:app --reload --port 8001)")
+        print(f"Ensure the FastAPI server is running locally (e.g. uvicorn src.app:app --reload --port {port})")
 
 if __name__ == "__main__":
     test_prediction()

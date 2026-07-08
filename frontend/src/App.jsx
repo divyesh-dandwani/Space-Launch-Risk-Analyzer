@@ -5,7 +5,7 @@ import WeatherWidget from './components/WeatherWidget'
 import ContributingFactors from './components/ContributingFactors'
 import DashboardCharts from './components/DashboardCharts'
 
-const API_BASE_URL = 'http://localhost:8001'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8001'
 
 function App() {
   const [theme, setTheme] = useState(() => {

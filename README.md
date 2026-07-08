@@ -59,7 +59,7 @@ Evaluating launch safety is typically manual and complex. This project solves th
 The data pipeline has already been run and the **XGBoost** model is trained. Follow these steps to run the application immediately:
 
 ### 1. Start the FastAPI Backend
-Navigate to the `backend/` directory, install dependencies, and start the Uvicorn server:
+Navigate to the `backend/` directory, install dependencies, configure your local port via the `.env` file, and start the Uvicorn server:
 ```bash
 # Navigate to backend
 cd backend
@@ -67,13 +67,13 @@ cd backend
 # Install Python requirements
 pip install -r requirements.txt
 
-# Start the dev server on port 8001
+# Start the dev server (loads port from backend/.env)
 uvicorn src.app:app --reload --port 8001
 ```
 *The API will be available at `http://localhost:8001`.*
 
 ### 2. Start the React Frontend
-Open a new terminal, navigate to the `frontend/` directory, install packages, and start the Vite dev server:
+Open a new terminal, navigate to the `frontend/` directory, install packages, configure backend endpoints and local ports via the `frontend/.env` file, and start the Vite dev server:
 ```bash
 # Navigate to frontend
 cd frontend
@@ -81,7 +81,7 @@ cd frontend
 # Install Node modules
 npm install
 
-# Start the dev server on port 5173
+# Start the dev server (loads configuration from frontend/.env)
 npm run dev
 ```
 *Open your browser and navigate to `http://localhost:5173` to interact with the dashboard.*
