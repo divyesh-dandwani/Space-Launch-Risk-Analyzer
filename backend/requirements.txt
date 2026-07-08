@@ -1,0 +1,12 @@
+pandas
+numpy
+scikit-learn
+xgboost
+lightgbm
+catboost
+requests
+fastapi
+uvicorn
+joblib
+geopy
+kagglehub
