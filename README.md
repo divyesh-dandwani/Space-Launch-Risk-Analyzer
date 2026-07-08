@@ -111,13 +111,6 @@ python src/train.py
 
 ---
 
-## 🔗 Deployment Links
-
-- **Backend API (Render)**: https://space-launch-risk-analyzer.onrender.com/
-- **Frontend Dashboard (Vercel)**: *[Vercel URL will be generated upon deployment]*
-
----
-
 ## 📡 Core API Endpoints
 
 - **`POST /api/predict`**: Accepts site, date, time, vehicle, company, cost, and manual weather overrides. Returns safety metrics, real-time/forecast weather parameters, and diagnostic risk drivers.
